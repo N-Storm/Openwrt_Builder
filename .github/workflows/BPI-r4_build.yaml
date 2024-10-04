@@ -50,7 +50,7 @@ jobs:
       - name: Download dependencies
         run: make -j$(($(nproc)+1)) download
       - name: Build the firmware image
-        run: ntry=1; while [[ $ntry -le 3 ]]; do make -j$(($(nproc)+1)) world && ntry=255 || (( ntry++ )); [[ $ntry -eq 4 ]] && exit 255; done
+        run: ntry=1; while [[ $ntry -le 3 ]]; do make -j$(($(nproc)+1)) world && ntry=5 || (( ntry++ )); [[ $ntry -eq 4 ]] && exit 255; true; done
       - name: Package output
         run: tar -cvf bpi_r4-images.tar bin/targets/mediatek/filogic
       - name: Upload artifacts
