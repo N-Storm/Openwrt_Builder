@@ -10,10 +10,6 @@ env:
   REMOTE_REPOSITORY: N-Storm/openwrt
   REMOTE_BRANCH: bananapi4
   CONFIG_FILE: config-nstorm-bananapi-bpi-r4
-  MTK_PPE_ENTRIES_SHIFT_PATCH: 999-01_32k_ppe.patch
-  PREFETCH_PATCH: 999-02_prefetch.patch
-  PP_XDP_PATCH: 999-03_pp_xdp.patch
-  CUSTOM_FILES_PATH: files/
   RELEASE_PREFIX: nstorm-bpi-r4
 
 jobs:
@@ -33,11 +29,6 @@ jobs:
           repository: ${{ env.REMOTE_REPOSITORY }}
           ref: ${{ env.REMOTE_BRANCH }}
 
-      - name: Checkout current repository
-        uses: actions/checkout@v4
-        with:
-          path: "custom_repo"
-
       - name: Update and install feeds
         run: |
           ./scripts/feeds update -a
@@ -47,11 +38,6 @@ jobs:
         run: |
           cat ${{ env.CONFIG_FILE }} > .config
           make defconfig
-
-      - name: Include custom files
-        run: |
-          mkdir -p ${{ env.CUSTOM_FILES_PATH }}
-          mv custom_repo/BPI-r4/${{ env.CUSTOM_FILES_PATH }}* ${{ env.CUSTOM_FILES_PATH }}
 
       - name: Try to fetch dependencies cache
         uses: actions/cache/restore@v4
