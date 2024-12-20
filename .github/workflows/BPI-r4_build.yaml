@@ -117,7 +117,7 @@ jobs:
           echo -n "BUILD_VER_STR=$( cat bin/targets/mediatek/filogic/profiles.json | jq -r '.profiles.[].image_prefix' | sed -E 's/openwrt-(v24-snapshot-.*?-r[0-9]{2,3})-mediatek-filogic-bananapi_bpi-r4/\1/' )" >> $GITHUB_ENV
 
       - name: Create release
-        uses: softprops/action-gh-release@master
+        uses: softprops/action-gh-release@v2.2.0
         with:
           files: bin/targets/mediatek/filogic/*
           prerelease: true
