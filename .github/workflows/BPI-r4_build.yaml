@@ -10,6 +10,7 @@ env:
   REMOTE_REPOSITORY: N-Storm/openwrt
   REMOTE_BRANCH: bananapi4
   CONFIG_FILE: config-nstorm-bananapi-bpi-r4
+  CUSTOM_FILES_PATH: files/
   RELEASE_PREFIX: nstorm-bpi-r4
 
 jobs:
@@ -29,6 +30,11 @@ jobs:
           repository: ${{ env.REMOTE_REPOSITORY }}
           ref: ${{ env.REMOTE_BRANCH }}
 
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+        with:
+          path: "custom_repo"
+
       - name: Update and install feeds
         run: |
           ./scripts/feeds update -a
@@ -38,6 +44,11 @@ jobs:
         run: |
           cat ${{ env.CONFIG_FILE }} > .config
           make defconfig
+
+      - name: Include custom files
+        run: |
+          mkdir -p ${{ env.CUSTOM_FILES_PATH }}
+          mv custom_repo/BPI-r4/${{ env.CUSTOM_FILES_PATH }}* ${{ env.CUSTOM_FILES_PATH }}
 
       - name: Try to fetch dependencies cache
         uses: actions/cache/restore@v4
@@ -96,12 +107,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: bpi_r4-images
+
       - name: Extract artifacts
         run: tar xf bpi_r4-images.tar
+
       - name: Get current date and release version
         run: |
           echo "RELEASE_DATE=$(date +%F)" >> $GITHUB_ENV
           echo -n "BUILD_VER_STR=$( cat bin/targets/mediatek/filogic/profiles.json | jq -r '.profiles.[].image_prefix' | sed -E 's/openwrt-(v24-snapshot-.*?-r[0-9]{2,3})-mediatek-filogic-bananapi_bpi-r4/\1/' )" >> $GITHUB_ENV
+
       - name: Create release
         uses: softprops/action-gh-release@master
         with:
@@ -113,4 +127,3 @@ jobs:
             (!) Automated and untested / experimental build.
             Image version: NStorm-BPI-R4-${{ env.BUILD_VER_STR }}
             Uploaded on: ${{ env.RELEASE_DATE }}
-            Build Commit: ${{ needs.check_commits.outputs.latest_commit_sha }}
